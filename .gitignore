@@ -1,0 +1,31 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+ENV/
+
+# Environment variables / Secrets
+.env
+.flaskenv
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Databases (if using SQLite)
+*.sqlite3
+*.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# FastAPI / Log files
+*.log
