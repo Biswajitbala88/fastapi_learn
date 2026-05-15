@@ -1,31 +1,34 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+
+from database import SessionLocal, engine
+from models import Base, Task
+from schemas import TaskCreate, TaskResponse
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# This defines the "shape" of the data we expect
-class Item(BaseModel):
-    name: str
-    # price: float
-    # is_offer: bool = None
+# DB Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-# A simple dictionary to act as a "database"
-items = {1: "Coffee", 2: "Tea", 3: "Juice"}
+# Create Task
+@app.post("/tasks", response_model=TaskResponse)
+def create_task(task: TaskCreate, db: Session = Depends(get_db)):
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
-    return {"item_id": item_id, "name": items.get(item_id, "Not Found")}
+    new_task = Task(
+        title=task.title,
+        description=task.description
+    )
 
-@app.get("/items/")
-def read_items():
-    for item_id, name in items.items():
-        print(f"Item ID: {item_id}, Name: {name}")
-        
-    return items
+    db.add(new_task)
+    db.commit()
+    db.refresh(new_task)
 
-@app.post("/items/")
-def create_item(item: Item):
-    items[len(items) + 1] = item.name  # Simulate adding to the "database")
-    # FastAPI has already turned the JSON into a Python object here
-    return {"message": f"Created {item.name}"}
-
+    return new_task
