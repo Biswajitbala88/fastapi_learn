@@ -8,7 +8,8 @@ class TaskCreate(BaseModel):
 
 class TaskResponse(TaskCreate):
     id: int
-    completed: bool
+    title: str
+    description: str
 
     class Config:
         from_attributes = True
